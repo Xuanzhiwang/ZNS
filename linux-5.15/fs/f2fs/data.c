@@ -353,6 +353,7 @@ static void f2fs_write_end_io(struct bio *bio)
 	bio_put(bio);
 }
 
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 static void f2fs_zone_write_end_io(struct bio *bio)
 {
@@ -362,6 +363,7 @@ static void f2fs_zone_write_end_io(struct bio *bio)
 	complete(&io->zone_wait);
 	f2fs_write_end_io(bio);
 }
+#endif
 #endif
 
 struct block_device *f2fs_target_device(struct f2fs_sb_info *sbi,
@@ -907,7 +909,7 @@ alloc_new:
 
 	return 0;
 }
-
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 static bool is_end_zone_blkaddr(struct f2fs_sb_info *sbi, block_t blkaddr)
 {
@@ -927,6 +929,7 @@ static bool is_end_zone_blkaddr(struct f2fs_sb_info *sbi, block_t blkaddr)
 		(blkaddr % sbi->blocks_per_blkz == sbi->blocks_per_blkz - 1);
 }
 #endif
+#endif
 
 void f2fs_submit_page_write(struct f2fs_io_info *fio)
 {
@@ -939,6 +942,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
 
 	down_write(&io->io_rwsem);
 
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 	if (f2fs_sb_has_blkzoned(sbi) && btype < META && io->zone_pending_bio) {
 		wait_for_completion_io(&io->zone_wait);
@@ -946,6 +950,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
 		io->zone_pending_bio = NULL;
 		io->bi_private = NULL;
 	}
+#endif
 #endif
 
 next:
@@ -1012,6 +1017,7 @@ skip:
 		goto next;
 out:
 
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 	if (f2fs_sb_has_blkzoned(sbi) && btype < META &&
 			is_end_zone_blkaddr(sbi, fio->new_blkaddr)) {
@@ -1023,6 +1029,7 @@ out:
 		io->zone_pending_bio = io->bio;
 		__submit_merged_bio(io);
 	}
+#endif
 #endif
 
 	if (is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN) ||

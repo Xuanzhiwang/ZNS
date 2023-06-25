@@ -4027,10 +4027,12 @@ try_onemore:
 			INIT_LIST_HEAD(&sbi->write_io[i][j].bio_list);
 			init_rwsem(&sbi->write_io[i][j].bio_list_lock);
 
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 			init_completion(&sbi->write_io[i][j].zone_wait);
 			sbi->write_io[i][j].zone_pending_bio = NULL;
 			sbi->write_io[i][j].bi_private = NULL;
+#endif
 #endif
 
 		}

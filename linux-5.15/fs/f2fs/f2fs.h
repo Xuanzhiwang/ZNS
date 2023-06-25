@@ -28,6 +28,7 @@
 #include <linux/fscrypt.h>
 #include <linux/fsverity.h>
 
+// #define WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_F2FS_CHECK_FS
 #define f2fs_bug_on(sbi, condition)	BUG_ON(condition)
 #else
@@ -1187,10 +1188,12 @@ struct f2fs_bio_info {
 	sector_t last_block_in_bio;	/* last block number */
 	struct f2fs_io_info fio;	/* store buffered io info. */
 
+#ifdef WXZ_ZNS_CONSTRAINT
 #ifdef CONFIG_BLK_DEV_ZONED
 	struct completion zone_wait;	/* condition value for the previous open zone to close */
 	struct bio *zone_pending_bio;	/* pending bio for the previous zone */
 	void *bi_private;		/* previous bi_private for pending bio */
+#endif
 #endif
 
 	struct rw_semaphore io_rwsem;	/* blocking op for bio */
